@@ -15,10 +15,23 @@ podTemplate(
   node('questcode'){
     def REPOS
     def TAG_IMG = "staging"
+    def KUBE_NAMESPACE
+    def GIT_BRANCH
     stage('Checkout') {
       echo 'Iniciando clone do repositorio'
       // REPOS = git credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git'
       REPOS = checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git']]])
+      GIT_BRANCH = REPOS.GIT_BRANCH
+      // baseado na branch alterar o deploy por ambiente
+      if(GIT_BRANCH.equals("master")){
+        KUBE_NAMESPACE = "prod"
+      } else if(GIT_BRANCH.equals("staging")){
+        KUBE_NAMESPACE = "staging"
+      } else {
+        echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
+        exit 0
+      }
+
     }
     stage('Package') {
         // Comandos que devem ser executados dentro do container 'docker-container'
@@ -40,7 +53,11 @@ podTemplate(
           sh 'helm repo list'
           sh 'helm repo update'
           sh 'helm search questcode'
-          sh "helm upgrade frontend questcode/frontend --set image.tag=${TAG_IMG}"
+          try {
+            sh "helm upgrade --namespace=${KUBE_NAMESPACE} --name frontend questcode/frontend --set image.tag=${TAG_IMG}"
+          } catch(Exception e){
+            sh "helm install --namespace=${KUBE_NAMESPACE} --name frontend questcode/frontend --set image.tag=${TAG_IMG}"
+          }
         } // Helm container fim
     }
   }// Node fim
