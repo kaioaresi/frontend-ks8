@@ -14,7 +14,7 @@ podTemplate(
   // Pipeline
   node('questcode'){
     def REPOS
-    def TAG_IMG = "staging"
+    def TAG_IMG
     def KUBE_NAMESPACE
     def GIT_BRANCH
     stage('Checkout') {
@@ -25,8 +25,10 @@ podTemplate(
       // baseado na branch alterar o deploy por ambiente
       if(GIT_BRANCH.equals("master")){
         KUBE_NAMESPACE = "prod"
+        TAG_IMG = "prod"
       } else if(GIT_BRANCH.equals("staging")){
         KUBE_NAMESPACE = "staging"
+        TAG_IMG = "staging"
       } else {
         echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
         exit 0
@@ -54,9 +56,9 @@ podTemplate(
           sh 'helm repo update'
           sh 'helm search questcode'
           try {
-            sh "helm upgrade --namespace=${KUBE_NAMESPACE} --name frontend questcode/frontend --set image.tag=${TAG_IMG}"
+            sh "helm upgrade --namespace=${KUBE_NAMESPACE} --name ${KUBE_NAMESPACE}-frontend questcode/frontend --set image.tag=${TAG_IMG}"
           } catch(Exception e){
-            sh "helm install --namespace=${KUBE_NAMESPACE} --name frontend questcode/frontend --set image.tag=${TAG_IMG}"
+            sh "helm install --namespace=${KUBE_NAMESPACE} --name ${KUBE_NAMESPACE}-frontend questcode/frontend --set image.tag=${TAG_IMG}"
           }
         } // Helm container fim
     }
