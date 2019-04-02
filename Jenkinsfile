@@ -22,6 +22,7 @@ podTemplate(
       // REPOS = git credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git'
       REPOS = checkout([$class: 'GitSCM', branches: [[name: '*/master'], [name: '*/staging']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git']]])
       GIT_BRANCH = REPOS.GIT_BRANCH
+
       // baseado na branch alterar o deploy por ambiente
       if(GIT_BRANCH.equals("master")){
         KUBE_NAMESPACE = "prod"
@@ -31,7 +32,7 @@ podTemplate(
         TAG_IMG = "staging"
       } else {
         echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
-        exit 0
+      //  exit 0
       }
 
     }
