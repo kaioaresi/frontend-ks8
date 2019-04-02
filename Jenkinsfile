@@ -16,19 +16,24 @@ podTemplate(
     def REPOS
     def TAG_IMG = "staging"
     def KUBE_NAMESPACE
+    def ENVIRONMENT
     def GIT_BRANCH
-    def HELM_NAME_DEPLOY = KUBE_NAMESPACE + "-frontend"
+    def HELM_NAME_DEPLOY
+    def HELM_CHART_NAME = "questcode/frontend"
     stage('Checkout') {
       echo 'Iniciando clone do repositorio'
       // REPOS = git credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git'
       REPOS = checkout([$class: 'GitSCM', branches: [[name: '*/master'], [name: '*/staging']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git']]])
       GIT_BRANCH = REPOS.GIT_BRANCH
+      echo "GIT_BRANCH e '${GIT_BRANCH}'"
 
       // baseado na branch alterar o deploy por ambiente
       if(GIT_BRANCH.equals("master")){
         KUBE_NAMESPACE = "prod"
+        ENVIRONMENT = "production"
       } else if(GIT_BRANCH.equals("staging")){
         KUBE_NAMESPACE = "staging"
+        ENVIRONMENT = "staging"
       } else {
         echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
       //  exit 0
@@ -43,7 +48,7 @@ podTemplate(
           echo 'Iniciando Build'
           withCredentials([usernamePassword(credentialsId: '95b860bc-932a-4770-8674-8cf9b3b147cb', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
             sh 'docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}'
-            sh "docker build -t ${DOCKER_HUB_USER}/frontend:${TAG_IMG} . --build-arg NPM_ENV='${TAG_IMG}'"
+            sh "docker build -t ${DOCKER_HUB_USER}/frontend:${TAG_IMG} . --build-arg NPM_ENV='${ENVIRONMENT}'"
             sh "docker image push ${DOCKER_HUB_USER}/frontend:${TAG_IMG}"
           }// withCredentials FIM
         }
@@ -58,9 +63,9 @@ podTemplate(
           sh 'helm repo update'
           sh 'helm search questcode'
           try {
-            sh "helm upgrade --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} questcode/frontend --set image.tag='${TAG_IMG}'"
+            sh "helm upgrade --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG}"
           } catch(Exception e){
-            sh "helm install --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} questcode/frontend --set image.tag=${TAG_IMG}"
+            sh "helm install --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG}"
           }
         } // Helm container fim
     }
