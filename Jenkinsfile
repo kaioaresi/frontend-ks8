@@ -33,13 +33,12 @@ podTemplate(
       if(GIT_BRANCH.equals("origin/master")){
           KUBE_NAMESPACE = "prod"
           ENVIRONMENT = "production"
-          TAG_IMG = "latest"
-          echo "Branch master"
+          echo "Master - GIT_BRANCH e '${GIT_BRANCH}'"
       } else if(GIT_BRANCH.equals("origin/staging")){
           KUBE_NAMESPACE = "staging"
           ENVIRONMENT = "staging"
           NODE_PORT = "30180"
-          echo "Branch staging"
+          echo "Staging - GIT_BRANCH e '${GIT_BRANCH}'"
       } else {
           def error = echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
           throw new Exception(error)
