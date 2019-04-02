@@ -45,7 +45,7 @@ podTemplate(
           throw new Exception(error)
       }
       // Nome que sera definico no helm
-      HELM_NAME_DEPLOY = ${KUBE_NAMESPACE} + "-frontend"
+      HELM_NAME_DEPLOY = KUBE_NAMESPACE + "-frontend"
 
     }
     stage('Package') {
