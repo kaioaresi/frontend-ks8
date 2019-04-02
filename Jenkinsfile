@@ -20,6 +20,8 @@ podTemplate(
     def GIT_BRANCH
     def HELM_NAME_DEPLOY
     def HELM_CHART_NAME = "questcode/frontend"
+    def NODE_PORT = "30080"
+
     stage('Checkout') {
       echo 'Iniciando clone do repositorio'
       // REPOS = git credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git'
@@ -29,14 +31,15 @@ podTemplate(
 
       // baseado na branch alterar o deploy por ambiente
       if(GIT_BRANCH.equals("origin/master")){
-        KUBE_NAMESPACE = "prod"
-        ENVIRONMENT = "production"
+          KUBE_NAMESPACE = "prod"
+          ENVIRONMENT = "production"
       } else if(GIT_BRANCH.equals("origin/staging")){
-        KUBE_NAMESPACE = "staging"
-        ENVIRONMENT = "staging"
+          KUBE_NAMESPACE = "staging"
+          ENVIRONMENT = "staging"
+          NODE_PORT = "30180"
       } else {
-        def error = echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
-        throw new Exception(error)
+          def error = echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
+          throw new Exception(error)
       }
       // Nome que sera definico no helm
       HELM_NAME_DEPLOY = KUBE_NAMESPACE + "-frontend"
@@ -63,9 +66,9 @@ podTemplate(
           sh 'helm repo update'
           sh 'helm search questcode'
           try {
-            sh "helm upgrade ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG}"
+            sh "helm upgrade ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG} --set service.nodePort=${NODE_PORT}"
           } catch(Exception e){
-            sh "helm install --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG}"
+            sh "helm install --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG} --set service.nodePort=${NODE_PORT}"
           }
         } // Helm container fim
     }
