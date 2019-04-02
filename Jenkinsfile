@@ -48,7 +48,7 @@ podTemplate(
           echo 'Iniciando Build'
           withCredentials([usernamePassword(credentialsId: '95b860bc-932a-4770-8674-8cf9b3b147cb', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER')]) {
             sh 'docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}'
-            sh "docker build -t ${DOCKER_HUB_USER}/frontend:${TAG_IMG} . --build-arg NPM_ENV='${ENVIRONMENT}'"
+            sh "docker build -t ${DOCKER_HUB_USER}/frontend:${TAG_IMG} . --build-arg NPM_ENV=${ENVIRONMENT}"
             sh "docker image push ${DOCKER_HUB_USER}/frontend:${TAG_IMG}"
           }// withCredentials FIM
         }
