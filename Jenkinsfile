@@ -17,6 +17,7 @@ podTemplate(
     def TAG_IMG = "staging"
     def KUBE_NAMESPACE
     def GIT_BRANCH
+    def HELM_NAME_DEPLOY = KUBE_NAMESPACE + "-frontend"
     stage('Checkout') {
       echo 'Iniciando clone do repositorio'
       // REPOS = git credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git'
@@ -55,9 +56,9 @@ podTemplate(
           sh 'helm repo update'
           sh 'helm search questcode'
           try {
-            sh "helm upgrade --namespace=${KUBE_NAMESPACE} --name ${KUBE_NAMESPACE}-frontend questcode/frontend --set image.tag='${TAG_IMG}'"
+            sh "helm upgrade --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} questcode/frontend --set image.tag='${TAG_IMG}'"
           } catch(Exception e){
-            sh "helm install --namespace=${KUBE_NAMESPACE} --name ${KUBE_NAMESPACE}-frontend questcode/frontend --set image.tag=${TAG_IMG}"
+            sh "helm install --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} questcode/frontend --set image.tag=${TAG_IMG}"
           }
         } // Helm container fim
     }
