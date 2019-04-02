@@ -63,7 +63,7 @@ podTemplate(
           sh 'helm repo update'
           sh 'helm search questcode'
           try {
-            sh "helm upgrade --namespace=${KUBE_NAMESPACE} ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG}"
+            sh "helm upgrade ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG}"
           } catch(Exception e){
             sh "helm install --namespace=${KUBE_NAMESPACE} --name ${HELM_NAME_DEPLOY} ${HELM_CHART_NAME} --set image.tag=${TAG_IMG}"
           }
