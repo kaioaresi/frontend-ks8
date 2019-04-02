@@ -27,8 +27,10 @@ podTemplate(
       // baseado na branch alterar o deploy por ambiente
       if(GIT_BRANCH.equals("master")){
         KUBE_NAMESPACE = "prod"
+        HELM_NAME_DEPLOY = KUBE_NAMESPACE + "-frontend"
       } else if(GIT_BRANCH.equals("staging")){
         KUBE_NAMESPACE = "staging"
+        HELM_NAME_DEPLOY = KUBE_NAMESPACE + "-frontend"
       } else {
         echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
       //  exit 0
