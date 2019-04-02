@@ -33,16 +33,19 @@ podTemplate(
       if(GIT_BRANCH.equals("origin/master")){
           KUBE_NAMESPACE = "prod"
           ENVIRONMENT = "production"
+          TAG_IMG = "latest"
+          echo "Branch master"
       } else if(GIT_BRANCH.equals("origin/staging")){
           KUBE_NAMESPACE = "staging"
           ENVIRONMENT = "staging"
           NODE_PORT = "30180"
+          echo "Branch staging"
       } else {
           def error = echo "Nao existem pipeline para essa branch ${GIT_BRANCH}!"
           throw new Exception(error)
       }
       // Nome que sera definico no helm
-      HELM_NAME_DEPLOY = KUBE_NAMESPACE + "-frontend"
+      HELM_NAME_DEPLOY = ${KUBE_NAMESPACE} + "-frontend"
 
     }
     stage('Package') {
