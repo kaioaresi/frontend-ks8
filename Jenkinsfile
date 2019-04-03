@@ -1,3 +1,5 @@
+def LABEL_ID = "questcode-${UUID.randomUUID().toString()}"
+
 podTemplate(
     containers: [
       containerTemplate(alwaysPullImage: false, args: 'cat', command: '/bin/sh -c', envVars: [], image: 'docker', livenessProbe: containerLivenessProbe(execArgs: '', failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0), name: 'docker-container', ports: [], privileged: false, resourceLimitCpu: '', resourceLimitMemory: '', resourceRequestCpu: '', resourceRequestMemory: '', shell: null, ttyEnabled: true, workingDir: '/home/jenkins'),
@@ -5,23 +7,22 @@ podTemplate(
 
       //Helm cliente - lachlanevenson/k8s-helm
     ],
-    label: 'questcode',
+    label: LABEL_ID,
     name: 'devops-pipeline',
     namespace: 'devops',
     volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
 )
 {
-  // Pipeline
-  node('questcode'){
-    def REPOS
-    def TAG_IMG = "staging"
-    def KUBE_NAMESPACE
-    def ENVIRONMENT
-    def GIT_BRANCH
-    def HELM_NAME_DEPLOY
-    def HELM_CHART_NAME = "questcode/frontend"
-    def NODE_PORT = "30080"
-
+  def REPOS
+  def TAG_IMG = "staging"
+  def KUBE_NAMESPACE
+  def ENVIRONMENT
+  def GIT_BRANCH
+  def HELM_NAME_DEPLOY
+  def HELM_CHART_NAME = "questcode/frontend"
+  def NODE_PORT = "30080"
+  // Start Pipeline
+  node(LABEL_ID){
     stage('Checkout') {
       echo 'Iniciando clone do repositorio'
       // REPOS = git credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git'
