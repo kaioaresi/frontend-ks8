@@ -34,6 +34,7 @@ podTemplate(
       if(GIT_BRANCH.equals("origin/master")){
           KUBE_NAMESPACE = "prod"
           ENVIRONMENT = "production"
+          TAG_IMG = "latest"
           echo "Master - GIT_BRANCH - '${GIT_BRANCH}'"
       } else if(GIT_BRANCH.equals("origin/staging")){
           KUBE_NAMESPACE = "staging"
