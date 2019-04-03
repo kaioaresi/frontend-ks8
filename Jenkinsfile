@@ -25,17 +25,17 @@ podTemplate(
   node(LABEL_ID){
     stage('Checkout') {
       echo 'Iniciando clone do repositorio'
-      // REPOS = git credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git'
-      REPOS = checkout([$class: 'GitSCM', branches: [[name: '*/master'], [name: '*/staging']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '48488f72-08cd-40ff-b88e-702dfc31276c', url: 'https://github.com/kaioaresi/frontend-ks8.git']]])
+      REPOS = checkout scm
       GIT_BRANCH = REPOS.GIT_BRANCH
       echo "GIT_BRANCH e '${GIT_BRANCH}'"
 
       // baseado na branch alterar o deploy por ambiente
-      if(GIT_BRANCH.equals("origin/master")){
+      if(GIT_BRANCH.equals("master")){
           KUBE_NAMESPACE = "prod"
           ENVIRONMENT = "production"
+          TAG_IMG = "latest"
           echo "Master - GIT_BRANCH - '${GIT_BRANCH}'"
-      } else if(GIT_BRANCH.equals("origin/staging")){
+      } else if(GIT_BRANCH.equals("staging")){
           KUBE_NAMESPACE = "staging"
           ENVIRONMENT = "staging"
           NODE_PORT = "30180"
@@ -59,7 +59,6 @@ podTemplate(
           }// withCredentials FIM
         }
     }
-
     stage('Deploy') {
         container('helm-container'){
           echo 'Iniciando deploy com helm'
