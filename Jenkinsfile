@@ -59,6 +59,7 @@ podTemplate(
           }// withCredentials FIM
         }
     }
+
     stage('Deploy') {
         container('helm-container'){
           echo 'Iniciando deploy com helm'
