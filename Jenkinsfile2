@@ -1,17 +1,28 @@
 def LABEL_ID = "jks-slave-${UUID.randomUUID().toString()}"
 
-podTemplate(
-    containers: [
-      containerTemplate(alwaysPullImage: false, args: 'cat', command: '/bin/sh -c', envVars: [], image: 'docker', livenessProbe: containerLivenessProbe(execArgs: '', failureThreshold: 0, initialDelaySeconds: 0, periodSeconds: 0, successThreshold: 0, timeoutSeconds: 0), name: 'docker-container', ports: [], privileged: false, resourceLimitCpu: '', resourceLimitMemory: '', resourceRequestCpu: '', resourceRequestMemory: '', shell: null, ttyEnabled: true, workingDir: '/home/jenkins'),
-      containerTemplate(alwaysPullImage: false, args: 'cat', command: '/bin/sh -c', envVars: [], image: 'lachlanevenson/k8s-helm:v2.13.1', name: 'helm-container', ttyEnabled: true)
-    ],
-    label: LABEL_ID,
-    name: 'devops-pipeline',
-    namespace: 'jenkins',
-    volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
+podTemplate(label: LABEL_ID, yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: docker-container
+    image: docker
+    command: ['cat']
+    tty: true
+    volumeMounts:
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+  - name: kubectl-container
+    image: gcr.io/cloud-builders/kubectl
+    command: ['cat']
+    tty: true
+  volumes:
+    - name: dockersock
+      hostPath:
+        path: /var/run/docker.sock
+"""
 )
 {
-
   node(LABEL_ID){
     stage('Deploy') {
       container('docker-container'){
