@@ -1,4 +1,4 @@
-def LABEL_ID = "questcode-${UUID.randomUUID().toString()}"
+def LABEL_ID = "jks-slave-${UUID.randomUUID().toString()}"
 
 podTemplate(
     containers: [
@@ -7,7 +7,7 @@ podTemplate(
     ],
     label: LABEL_ID,
     name: 'devops-pipeline',
-    namespace: 'devops',
+    namespace: 'jenkins',
     volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]
 )
 {
