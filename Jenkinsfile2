@@ -16,7 +16,6 @@ spec:
     image: gcr.io/cloud-builders/kubectl
     command: ['cat']
     tty: true
-  nodeSelector: "nodegroup-type=node-jks-base"
   volumes:
     - name: dockersock
       hostPath:
