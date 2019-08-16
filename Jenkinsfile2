@@ -1,6 +1,6 @@
 def LABEL_ID = "jks-slave-${UUID.randomUUID().toString()}"
 
-podTemplate(label: LABEL_ID,yaml: """
+podTemplate(label: LABEL_ID,nodeSelector: "nodegroup-type=node-jks-base",yaml: """
 apiVersion: v1
 kind: Pod
 spec:
