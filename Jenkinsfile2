@@ -27,6 +27,7 @@ spec:
     stage('Deploy') {
       container('docker-container'){
         sh 'ls -lh'
+        sh 'sleep 200'
       }
     }
   }
